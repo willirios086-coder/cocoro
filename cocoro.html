@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Eli ❤️</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:black;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+}
+
+#inicio{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background:black;
+    z-index:10;
+}
+
+#inicio img{
+    width:260px;
+    max-width:80%;
+    border-radius:20px;
+    box-shadow:0 0 25px pink;
+}
+
+#inicio h1{
+    color:pink;
+    margin-top:20px;
+    margin-bottom:20px;
+    text-align:center;
+    padding:0 20px;
+}
+
+#inicio button{
+    background:pink;
+    color:white;
+    border:none;
+    padding:15px 35px;
+    font-size:22px;
+    border-radius:30px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+#inicio button:hover{
+    transform:scale(1.08);
+}
+
+canvas{
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<div id="inicio">
+
+    <img src="https://i.pinimg.com/736x/17/ce/04/17ce0480cfae1046dbc6fa76d69fe8ef.jpg">
+
+    <h1>💖 Espero que te guste mucho Eli 💖</h1>
+
+    <button onclick="iniciar()">
+        Abrir ❤️
+    </button>
+
+</div>
+
+<canvas id="c"></canvas>
+
+<script>
+
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+let iniciado = false;
+
+function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener("resize", resize);
+
+function iniciar(){
+
+    document.getElementById("inicio").style.display = "none";
+    canvas.style.display = "block";
+
+    iniciado = true;
+}
+
+const points = [];
+const hearts = [];
+
+function heartX(t){
+    return 16 * Math.pow(Math.sin(t),3);
+}
+
+function heartY(t){
+    return 13*Math.cos(t)
+         - 5*Math.cos(2*t)
+         - 2*Math.cos(3*t)
+         - Math.cos(4*t);
+}
+
+for(let t=0; t<Math.PI*2; t+=0.08){
+
+    points.push({
+        x:heartX(t),
+        y:heartY(t)
+    });
+
+}
+
+for(let i=0;i<80;i++){
+
+    hearts.push({
+        x:Math.random()*window.innerWidth,
+        y:Math.random()*window.innerHeight,
+        speed:1+Math.random()*2,
+        size:12+Math.random()*18
+    });
+
+}
+
+let progress = 0;
+let completed = false;
+
+function drawHearts(){
+
+    for(const h of hearts){
+
+        ctx.font = h.size + "px Arial";
+        ctx.fillStyle = "rgba(255,0,0,0.8)";
+        ctx.fillText("❤️",h.x,h.y);
+
+        h.y += h.speed;
+
+        if(h.y > canvas.height+30){
+            h.y = -30;
+            h.x = Math.random()*canvas.width;
+        }
+    }
+}
+
+function animate(){
+
+    if(!iniciado){
+        requestAnimationFrame(animate);
+        return;
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.15)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    drawHearts();
+
+    const cx = canvas.width/2;
+    const cy = canvas.height/2;
+
+    const beat = 1 + Math.sin(Date.now()*0.005)*0.12;
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 12px Arial";
+
+    for(let i=0;i<progress && i<points.length;i++){
+
+        const p = points[i];
+
+        const x = cx + p.x*20*beat;
+        const y = cy - p.y*20*beat;
+
+        ctx.fillStyle = "rgb(255,80,80)";
+        ctx.fillText("Eli",x,y);
+    }
+
+    if(progress < points.length){
+
+        progress += 0.25;
+
+    }else{
+
+        completed = true;
+    }
+
+    if(completed){
+
+        const glow = 220 + Math.sin(Date.now()*0.01)*35;
+
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = "red";
+
+        ctx.fillStyle = `rgb(255,${glow/4},${glow/4})`;
+
+        ctx.font = "bold 55px Arial";
+        ctx.fillText(
+            "❤️ I LOVE YOU ❤️",
+            canvas.width/2,
+            canvas.height/2 - 50
+        );
+
+        ctx.font = "bold 70px Arial";
+        ctx.fillText(
+            "ELI",
+            canvas.width/2,
+            canvas.height/2 + 35
+        );
+
+        ctx.font = "bold 22px Arial";
+        ctx.fillText(
+            "💖 Espero que te haya gustado 💖",
+            canvas.width/2,
+            canvas.height/2 + 100
+        );
+
+        ctx.shadowBlur = 0;
+    }
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
